@@ -54,20 +54,14 @@ RegisterNetEvent('monk-crafting:client:OpenMenu', function()
                 title = 'Shotgun Crafting',
                 description = 'Required Level 5',
                 icon = 'bars',
-
-
                 disable = true,
-
                 event = 'monk-crafting:client:CraftItem', -- Trigger crafting
             },
             {
                 title = 'Rifle Crafting',
                 description = 'Required Level 10',
                 icon = 'bars',
-
-
                 disable = true,
-
                 event = 'monk-crafting:client:CraftItem', -- Trigger crafting
             }
         }
