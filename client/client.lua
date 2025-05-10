@@ -2,6 +2,9 @@
 local benchObj = nil
 local benchModelHash = `gr_prop_gr_bench_02a`
 
+local playerCraftingLevel = 0
+local playerCraftingXP = 0
+
 -- Create a thread to spawn the bench and set up interaction
 Citizen.CreateThread(function()
     -- Request the bench model
@@ -40,8 +43,12 @@ RegisterNetEvent('monk-crafting:client:OpenMenu', function()
                 title = 'Crafting Level',
                 description = 'This is your level for crafting',
                 icon = 'fa-solid fa-hammer',
-                progress = 50,
-                colorScheme = 'green'
+                progress = (playerCraftingXP / (100 + (100 * playerCraftingLevel))) * 100,
+                colorScheme = 'green',
+                metadata = {
+                    { label = 'Level', value = playerCraftingLevel },
+                    { label = 'XP',    value = playerCraftingXP .. '/' .. (100 + (100 * playerCraftingLevel)) }
+                }
             },
             {
                 title = 'Pistol Crafting',
@@ -111,19 +118,21 @@ RegisterNetEvent('monk-crafting:client:CraftItem', function(itemToCraft)
 
         -- Show a crafting progress bar
         -- lib.progressCircle({ duration = 5000, label = "Crafting a " .. Config.CraftableItems[itemToCraft.item].menuTitle .. "...", position = 'bottom', useWhileDead = false, canCancel = true, disable = { move = true, combat = true, car = true, }, })
-        if lib.skillCheck({ 'easy', 'easy', 'easy', 'easy', 'easy', 'medium', 'easy', 'easy', 'easy', 'hard' }) then
+        -- lib.skillCheck({ 'easy', 'easy', 'easy', 'easy', 'easy', 'medium', 'easy', 'easy', 'easy', 'hard' })
+        if lib.progressCircle({ duration = 1, label = "Crafting a " .. Config.CraftableItems[itemToCraft.item].menuTitle .. "...", position = 'bottom', useWhileDead = false, canCancel = true, disable = { move = true, combat = true, car = true, }, }) then
             -- If crafting completes, remove ingredients and give crafted item
             for i, item in ipairs(itemRecipe) do
                 TriggerServerEvent('monk-crafting:server:TakeItem', item.itemName, item.reqAmount)
             end
 
             TriggerServerEvent('monk-crafting:server:GiveItem', itemToCraft.item, 1)
-
+            TriggerServerEvent('monk-crafting:server:AddCraftingXP', Config.CraftableItems[itemToCraft.item].xp)
             -- Notify success
             lib.notify({
                 title = "Crafting Finished",
                 type = 'success'
             })
+            ClearPedTasks(ped)
         else
             -- Notify crafting was canceled or failed
             lib.notify({
@@ -142,6 +151,22 @@ RegisterNetEvent('monk-crafting:client:CraftItem', function(itemToCraft)
         })
     end
 end)
+
+RegisterNetEvent('monk-crafting:client:UpdateCraftingLevel', function(level, xp)
+    playerCraftingLevel = level
+    playerCraftingXP = xp
+end)
+
+
+AddEventHandler('ox:playerLoaded', function()
+    TriggerServerEvent('monk-crafting:server:RequestCraftingData')
+end)
+
+RegisterNetEvent('monk-crafting:client:SetCraftingData', function(level, xp)
+    playerCraftingLevel = level
+    playerCraftingXP = xp
+end)
+
 
 -- Clean up bench object if the resource is stopped
 AddEventHandler('onResourceStop', function(resourceName)

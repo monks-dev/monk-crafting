@@ -9,7 +9,8 @@ Config.BenchLoc = vec4(13.12, -1101.54, 29.8 - 1, 336.45)
 -- Define craftable items and their crafting recipes
 Config.CraftableItems = {
     ["weapon_pistol"] = {
-        menuTitle = 'Lock Pick', -- Display name in the crafting menu
+        menuTitle = 'Pistol', -- Display name in the crafting menu
+        xp = 10,
         recipe = {
             -- Each item in the recipe requires an item name and how many are needed
             { itemName = 'iron', reqAmount = 5 },
