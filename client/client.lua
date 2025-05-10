@@ -71,6 +71,23 @@ RegisterNetEvent('monk-crafting:client:OpenMenu', function()
     lib.showContext('general_crafting')
 end)
 
+lib.registerContext({
+    id = 'pistol-crafting',
+    title = 'Pistol Crafting',
+    menu = 'general_crafting',
+    options = {
+        {
+            title = 'Pistol',
+            description = 'Required Level 0',
+            icon = 'gun',
+            event = 'monk-crafting:client:CraftItem', -- Trigger crafting
+            args = {
+                item = 'weapon_pistol'
+            }
+        }
+    }
+})
+
 -- Event triggered when player chooses to craft an item
 RegisterNetEvent('monk-crafting:client:CraftItem', function(itemToCraft)
     local counter = 0
@@ -93,18 +110,8 @@ RegisterNetEvent('monk-crafting:client:CraftItem', function(itemToCraft)
         TaskStartScenarioInPlace(ped, "PROP_HUMAN_BUM_BIN", 0, true)
 
         -- Show a crafting progress bar
-        if lib.progressCircle({
-                duration = 5000,
-                label = "Crafting a " .. Config.CraftableItems[itemToCraft.item].menuTitle .. "...",
-                position = 'bottom',
-                useWhileDead = false,
-                canCancel = true,
-                disable = {
-                    move = true,
-                    combat = true,
-                    car = true,
-                },
-            }) then
+        -- lib.progressCircle({ duration = 5000, label = "Crafting a " .. Config.CraftableItems[itemToCraft.item].menuTitle .. "...", position = 'bottom', useWhileDead = false, canCancel = true, disable = { move = true, combat = true, car = true, }, })
+        if lib.skillCheck({ 'easy', 'easy', 'easy', 'easy', 'easy', 'medium', 'easy', 'easy', 'easy', 'hard' }) then
             -- If crafting completes, remove ingredients and give crafted item
             for i, item in ipairs(itemRecipe) do
                 TriggerServerEvent('monk-crafting:server:TakeItem', item.itemName, item.reqAmount)
